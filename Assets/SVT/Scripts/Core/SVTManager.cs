@@ -70,6 +70,8 @@ namespace SVT.Core
                     Destroy(gameObject);
                     return;
                 }
+                // In editor mode, update the singleton reference instead of destroying
+                Debug.LogWarning("[SVT] Multiple SVTManager instances detected. Updating singleton reference.");
             }
             Instance = this;
 

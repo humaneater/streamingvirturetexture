@@ -151,11 +151,19 @@ namespace SVT.Core
 
                 Texture2D albedo = null;
                 if (!string.IsNullOrEmpty(req.AlbedoPath))
+                {
                     albedo = Resources.Load<Texture2D>(req.AlbedoPath);
+                    if (albedo == null)
+                        UnityEngine.Debug.LogWarning($"[SVT] Failed to load albedo texture: {req.AlbedoPath}");
+                }
 
                 Texture2D normal = null;
                 if (!string.IsNullOrEmpty(req.NormalPath))
+                {
                     normal = Resources.Load<Texture2D>(req.NormalPath);
+                    if (normal == null)
+                        UnityEngine.Debug.LogWarning($"[SVT] Failed to load normal texture: {req.NormalPath}");
+                }
 
                 _activeRequests.Remove(req.Node.PageId);
 
