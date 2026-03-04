@@ -14,6 +14,7 @@ namespace SVT.Rendering
     ///   2. 发起异步回读请求。
     ///   3. 每帧将SVT材质应用到所有已注册的渲染器。
     /// </summary>
+    [ExecuteAlways]
     [DefaultExecutionOrder(-50)]
     public class SVTRenderer : MonoBehaviour
     {

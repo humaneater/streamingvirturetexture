@@ -20,10 +20,8 @@ namespace SVT.Editor
             EditorGUILayout.Space(8f);
             EditorGUILayout.LabelField("Runtime Actions", EditorStyles.boldLabel);
 
-            EditorGUI.BeginDisabledGroup(!Application.isPlaying);
             if (GUILayout.Button("Rebuild Quadtree"))
                 mgr.RebuildQuadTree();
-            EditorGUI.EndDisabledGroup();
 
             EditorGUILayout.Space(4f);
             if (GUILayout.Button("Open SVT Editor Window"))

@@ -14,6 +14,7 @@ namespace SVT.Terrain
     /// 将Unity地形的图层烘焙成权重纹理集和合并后的虚拟反照率+法线纹理图集，供SVT系统使用。
     /// 支持无限数量的地形图层，通过逐步混合将所有图层合并为单一RGBA输出。
     /// </summary>
+    [ExecuteAlways]
     [RequireComponent(typeof(UnityEngine.Terrain))]
     public class SVTTerrainLayerBaker : MonoBehaviour
     {
@@ -126,10 +127,10 @@ namespace SVT.Terrain
                 // Normal pass
                 Graphics.Blit(null, MergedNormal, blendMat, 1);
 
-                Object.Destroy(weightTex);
+                SafeDestroy(weightTex);
             }
 
-            Object.Destroy(blendMat);
+            SafeDestroy(blendMat);
         }
 
         // ------------------------------------------------------------------ //
@@ -160,8 +161,8 @@ namespace SVT.Terrain
 
         private void ReleaseBakedTextures()
         {
-            if (MergedAlbedo != null) { MergedAlbedo.Release(); Object.Destroy(MergedAlbedo); MergedAlbedo = null; }
-            if (MergedNormal != null) { MergedNormal.Release(); Object.Destroy(MergedNormal); MergedNormal = null; }
+            if (MergedAlbedo != null) { MergedAlbedo.Release(); SafeDestroy(MergedAlbedo); MergedAlbedo = null; }
+            if (MergedNormal != null) { MergedNormal.Release(); SafeDestroy(MergedNormal); MergedNormal = null; }
         }
 
         private static Texture2D BuildWeightTexture(float[,,] alphaMaps, int layerIndex,
@@ -205,6 +206,15 @@ namespace SVT.Terrain
                 return new Material(Shader.Find("Hidden/BlitCopy"));
             }
             return new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
+        }
+
+        private static void SafeDestroy(Object obj)
+        {
+            if (obj == null) return;
+            if (Application.isPlaying)
+                Object.Destroy(obj);
+            else
+                Object.DestroyImmediate(obj);
         }
     }
 }

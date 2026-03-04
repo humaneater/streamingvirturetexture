@@ -88,6 +88,11 @@ namespace SVT.Terrain
 
             foreach (SVTNode leaf in leaves)
                 ExportPatch(leaf, root);
+
+            // Disable terrain rendering to avoid z-fighting with exported patches.
+            // Terrain collider remains active for physics.
+            if (_terrain != null)
+                _terrain.drawHeightmap = false;
         }
 
         /// <summary>
@@ -111,6 +116,10 @@ namespace SVT.Terrain
                 }
             }
             _exportedPatches.Clear();
+
+            // Restore terrain rendering when patches are removed
+            if (_terrain != null)
+                _terrain.drawHeightmap = true;
         }
 
         // ------------------------------------------------------------------ //

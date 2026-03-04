@@ -67,7 +67,7 @@ namespace SVT.Core
             if (_feedbackRT != null)
             {
                 _feedbackRT.Release();
-                UnityEngine.Object.Destroy(_feedbackRT);
+                SafeDestroy(_feedbackRT);
             }
 
             _feedbackRT = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32)
@@ -79,7 +79,7 @@ namespace SVT.Core
             _feedbackRT.Create();
 
             if (_readbackTexture != null)
-                UnityEngine.Object.Destroy(_readbackTexture);
+                SafeDestroy(_readbackTexture);
             _readbackTexture = new Texture2D(w, h, TextureFormat.RGBA32, false)
             {
                 filterMode = FilterMode.Point
@@ -130,14 +130,23 @@ namespace SVT.Core
             if (_feedbackRT != null)
             {
                 _feedbackRT.Release();
-                UnityEngine.Object.Destroy(_feedbackRT);
+                SafeDestroy(_feedbackRT);
                 _feedbackRT = null;
             }
             if (_readbackTexture != null)
             {
-                UnityEngine.Object.Destroy(_readbackTexture);
+                SafeDestroy(_readbackTexture);
                 _readbackTexture = null;
             }
+        }
+
+        private static void SafeDestroy(UnityEngine.Object obj)
+        {
+            if (obj == null) return;
+            if (Application.isPlaying)
+                UnityEngine.Object.Destroy(obj);
+            else
+                UnityEngine.Object.DestroyImmediate(obj);
         }
     }
 }

@@ -12,6 +12,7 @@ namespace SVT.Core
     /// 协调四叉树、页表、缓存、纹理管理器和反馈缓冲区。
     /// 将此脚本挂载到场景中的GameObject，并赋值SVTSettings资源。
     /// </summary>
+    [ExecuteAlways]
     [DefaultExecutionOrder(-100)]
     public class SVTManager : MonoBehaviour
     {
@@ -64,8 +65,11 @@ namespace SVT.Core
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
-                return;
+                if (Application.isPlaying)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
             }
             Instance = this;
 
@@ -97,19 +101,34 @@ namespace SVT.Core
             if (_activeCamera == null)
                 _activeCamera = svtCamera != null ? svtCamera : Camera.main;
 
-            if (_activeCamera == null || settings == null) return;
+            if (settings == null) return;
 
-            // 1. Update quadtree LOD
-            _quadTree.Update(_activeCamera);
+            // Ensure systems are initialized (handles editor re-compile scenarios)
+            if (_quadTree == null)
+                InitializeSystems();
+
+            if (_activeCamera != null)
+            {
+                // 1. Update quadtree LOD
+                _quadTree.Update(_activeCamera);
+            }
 
             // 2. Process texture load queue
-            _textureManager.ProcessQueue();
+            if (_textureManager != null)
+            {
+                if (Application.isPlaying)
+                    _textureManager.ProcessQueue();
+                else
+                    _textureManager.ProcessQueueSync();
+            }
 
-            // 3. Poll GPU feedback readback
-            _feedbackBuffer.Poll();
+            // 3. Poll GPU feedback readback (play mode only)
+            if (Application.isPlaying && _feedbackBuffer != null)
+                _feedbackBuffer.Poll();
 
             // 4. Upload dirty page table entries
-            _pageTable.Upload();
+            if (_pageTable != null)
+                _pageTable.Upload();
 
             // 5. Bind textures to SVT material
             BindMaterialTextures();
@@ -143,6 +162,7 @@ namespace SVT.Core
             if (_feedbackBuffer != null) { _feedbackBuffer.Dispose(); _feedbackBuffer = null; }
             if (_pageTable != null) { _pageTable.Dispose(); _pageTable = null; }
             if (_cache != null) { _cache.Dispose(); _cache = null; }
+            _quadTree = null;
         }
 
         // ------------------------------------------------------------------ //
@@ -258,7 +278,7 @@ namespace SVT.Core
 
         private void BindMaterialTextures()
         {
-            if (svtMaterial == null) return;
+            if (svtMaterial == null || _pageTable == null || _cache == null) return;
             svtMaterial.SetTexture("_SVT_IndirectionTex", _pageTable.IndirectionTexture);
             svtMaterial.SetTexture("_SVT_AlbedoAtlas", _cache.AlbedoAtlas);
             svtMaterial.SetTexture("_SVT_NormalAtlas", _cache.NormalAtlas);
@@ -281,7 +301,10 @@ namespace SVT.Core
         /// </summary>
         public void RebuildQuadTree()
         {
-            _quadTree.Initialize(terrainOrigin);
+            if (_quadTree == null && settings != null)
+                InitializeSystems();
+            else if (_quadTree != null)
+                _quadTree.Initialize(terrainOrigin);
         }
 
         /// <summary>Expose the page table indirection texture for external use.</summary>

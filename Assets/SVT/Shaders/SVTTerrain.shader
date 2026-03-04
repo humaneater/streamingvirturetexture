@@ -30,7 +30,7 @@ Shader "SVT/SVTTerrain"
         Tags { "RenderType"="Opaque" "Queue"="Geometry" }
         LOD 300
 
-        HLSLINCLUDE
+        CGINCLUDE
         #include "UnityCG.cginc"
         #include "UnityStandardUtils.cginc"
 
@@ -98,7 +98,7 @@ Shader "SVT/SVTTerrain"
             normal.z  = sqrt(max(0, 1.0 - dot(normal.xy, normal.xy)));
             return normalize(normal);
         }
-        ENDHLSL
+        ENDCG
 
         // --- Surface Pass ---
         Pass

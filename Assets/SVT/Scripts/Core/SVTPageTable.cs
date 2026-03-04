@@ -132,7 +132,7 @@ namespace SVT.Core
                 tmp.SetPixels32(_mipTables[mip]);
                 tmp.Apply(false);
                 Graphics.CopyTexture(tmp, 0, 0, _indirectionTexture, 0, mip);
-                UnityEngine.Object.Destroy(tmp);
+                SafeDestroy(tmp);
 
                 mipW = Mathf.Max(1, mipW / 2);
                 mipH = Mathf.Max(1, mipH / 2);
@@ -144,9 +144,18 @@ namespace SVT.Core
             if (_indirectionTexture != null)
             {
                 _indirectionTexture.Release();
-                UnityEngine.Object.Destroy(_indirectionTexture);
+                SafeDestroy(_indirectionTexture);
                 _indirectionTexture = null;
             }
+        }
+
+        private static void SafeDestroy(UnityEngine.Object obj)
+        {
+            if (obj == null) return;
+            if (Application.isPlaying)
+                UnityEngine.Object.Destroy(obj);
+            else
+                UnityEngine.Object.DestroyImmediate(obj);
         }
     }
 }

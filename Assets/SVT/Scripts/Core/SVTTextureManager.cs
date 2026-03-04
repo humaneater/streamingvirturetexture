@@ -137,6 +137,35 @@ namespace SVT.Core
             }
         }
 
+        /// <summary>
+        /// Process pending load requests synchronously (for editor mode where coroutines are unavailable).
+        /// 同步处理挂起的加载请求（用于编辑器模式，协程不可用）。
+        /// </summary>
+        public void ProcessQueueSync()
+        {
+            int budget = _settings.maxPageLoadsPerFrame;
+            while (_pendingRequests.Count > 0 && budget > 0)
+            {
+                var req = _pendingRequests.Dequeue();
+                if (req.Cancelled) continue;
+
+                Texture2D albedo = null;
+                if (!string.IsNullOrEmpty(req.AlbedoPath))
+                    albedo = Resources.Load<Texture2D>(req.AlbedoPath);
+
+                Texture2D normal = null;
+                if (!string.IsNullOrEmpty(req.NormalPath))
+                    normal = Resources.Load<Texture2D>(req.NormalPath);
+
+                _activeRequests.Remove(req.Node.PageId);
+
+                var textures = new PageTextures { Albedo = albedo, Normal = normal };
+                _loadedTextures[req.Node.PageId] = textures;
+                OnPageLoaded?.Invoke(req.Node, textures);
+                budget--;
+            }
+        }
+
         // ------------------------------------------------------------------ //
         // Coroutine loader
         // ------------------------------------------------------------------ //
