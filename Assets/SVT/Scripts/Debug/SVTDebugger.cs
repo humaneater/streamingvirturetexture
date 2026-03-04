@@ -13,6 +13,7 @@ namespace SVT.Debug
     /// 为四叉树节点绘制Gizmos（已加载/未加载/已请求），
     /// 并渲染显示缓存使用统计的屏幕覆盖层。
     /// </summary>
+    [ExecuteAlways]
     public class SVTDebugger : MonoBehaviour
     {
         // ------------------------------------------------------------------ //

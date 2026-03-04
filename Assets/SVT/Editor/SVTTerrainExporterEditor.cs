@@ -30,10 +30,8 @@ namespace SVT.Editor
                 }
             }
 
-            EditorGUI.BeginDisabledGroup(!Application.isPlaying);
             if (GUILayout.Button("Clear Exported Patches"))
                 exporter.ClearExportedPatches();
-            EditorGUI.EndDisabledGroup();
         }
     }
 }

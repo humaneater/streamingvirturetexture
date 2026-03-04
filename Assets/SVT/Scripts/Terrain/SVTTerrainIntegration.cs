@@ -11,6 +11,7 @@ namespace SVT.Terrain
     /// 桥接Unity地形系统与SVT管理器。
     /// 读取地形属性，驱动SVT页面捕获相机对地形表面进行8K虚拟纹理采样。
     /// </summary>
+    [ExecuteAlways]
     [RequireComponent(typeof(UnityEngine.Terrain))]
     public class SVTTerrainIntegration : MonoBehaviour
     {
@@ -125,8 +126,9 @@ namespace SVT.Terrain
             captureCamera.transform.position = terrainCenter + Vector3.up * (captureCameraHeight);
             captureCamera.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 
-            if (svtManager != null)
-                captureCamera.targetTexture = svtManager.FeedbackRT;
+            // Capture camera is used for page content rendering, not feedback.
+            // targetTexture should be set per-page when capturing individual pages.
+            captureCamera.enabled = false;
         }
 
         // ------------------------------------------------------------------ //

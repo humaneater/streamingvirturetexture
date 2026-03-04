@@ -225,15 +225,24 @@ namespace SVT.Core
             if (_albedoAtlas != null)
             {
                 _albedoAtlas.Release();
-                UnityEngine.Object.Destroy(_albedoAtlas);
+                SafeDestroy(_albedoAtlas);
                 _albedoAtlas = null;
             }
             if (_normalAtlas != null)
             {
                 _normalAtlas.Release();
-                UnityEngine.Object.Destroy(_normalAtlas);
+                SafeDestroy(_normalAtlas);
                 _normalAtlas = null;
             }
+        }
+
+        private static void SafeDestroy(UnityEngine.Object obj)
+        {
+            if (obj == null) return;
+            if (Application.isPlaying)
+                UnityEngine.Object.Destroy(obj);
+            else
+                UnityEngine.Object.DestroyImmediate(obj);
         }
     }
 }
